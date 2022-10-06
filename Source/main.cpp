@@ -14,6 +14,7 @@
 */
 
 #include <iostream>
+#include <cmath>
 using namespace std;
 
 struct stringPosition{
@@ -32,7 +33,8 @@ void* makeARNtranscription(void *args);
 
 int main() {
     string adnInput = askDNASequence();
-    nThreads = adnInput.length() / CHARS_PER_THREAD;
+    //nThreads = ceil(adnInput.length() / CHARS_PER_THREAD);
+    nThreads = 5;
     pthread_t threads[nThreads];
     // INITIALIZES THE PTHREAD
     int threadPos = 0;
