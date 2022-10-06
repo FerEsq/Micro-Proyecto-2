@@ -1,4 +1,4 @@
-# Install script for directory: C:/Users/Andres/OneDrive/Documents/UVG/4. Cuarto semestre/Progra microp/Micro-Proyecto-2/Source
+# Install script for directory: D:/UVG/Segundo/SegundoSemestre/Microprocesadores/Laboratorios/Laboratorio5/Micro-Proyecto-2/Source
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -34,7 +34,7 @@ endif()
 
 # Set default install directory permissions.
 if(NOT DEFINED CMAKE_OBJDUMP)
-  set(CMAKE_OBJDUMP "C:/Program Files/JetBrains/CLion 2022.2.1/bin/mingw/bin/objdump.exe")
+  set(CMAKE_OBJDUMP "D:/Programs/CLion/Install/CLion 2022.2/bin/mingw/bin/objdump.exe")
 endif()
 
 if(CMAKE_INSTALL_COMPONENT)
@@ -45,5 +45,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "C:/Users/Andres/OneDrive/Documents/UVG/4. Cuarto semestre/Progra microp/Micro-Proyecto-2/Source/cmake-build-debug/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "D:/UVG/Segundo/SegundoSemestre/Microprocesadores/Laboratorios/Laboratorio5/Micro-Proyecto-2/Source/cmake-build-debug/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")
