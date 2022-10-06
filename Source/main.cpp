@@ -22,10 +22,8 @@ struct stringPosition{
     int end;
 };
 
-const int CHARS_PER_THREAD = 10;
-string arnTranscription;
-int arnPos, nThreads;
-string adnInput, aminoacids;
+int nThreads;
+string adnInput, arnTranscription, aminoacids;
 
 void separator();
 string askDNASequence();
@@ -33,27 +31,30 @@ void* makeARNtranscription(void *args);
 
 int main() {
     adnInput = askDNASequence();
-    //nThreads = ceil(adnInput.length() / CHARS_PER_THREAD);
-    nThreads = 5;
+    // DISTRIBUTES WORKLOAD
+    nThreads = ceil(sqrt(adnInput.length()));
     pthread_t threads[nThreads];
-    // INITIALIZES THE PTHREAD
-    int threadPos = 0;
-    stringPosition adnPos{0, (int)adnInput.length()};
+    stringPosition positions[nThreads];
+    // INITIALIZES THE arnTranscription VARIABLE
+    for(char c : adnInput){ arnTranscription += "x"; };
+
+    // PICKS POSITIONS FOR THE THREADS
+    for(int i = 0; i < nThreads; i++){
+        positions[i].start = i*nThreads;
+        positions[i].end = (i+1)*nThreads;
+        // LOADS THE LAST THREAD THE REMAINING CHARS
+        if(i == nThreads-1){
+            positions[i].end = adnInput.length();
+        }
+    }
     cout << adnInput << endl;
-    pthread_create(&threads[0], nullptr, &makeARNtranscription, (void*) &adnPos);
-    /*
-    for(auto thread: threads){
-        // 0 - 10 → 10 - 20 → 20 - 30
-        adnPos = {CHARS_PER_THREAD*threadPos, CHARS_PER_THREAD*threadPos+1};
-        pthread_create(&threads[threadPos++], nullptr, &makeARNtranscription, (void*) &adnPos);
-        pthread_create(&threads[threadPos++], nullptr, &makeARNtranscription, (void*) &adnPos);
+    for(int i = 0; i < nThreads; i++){
+        pthread_create(&threads[i], nullptr, &makeARNtranscription, (void*) &positions[i]);
     }
     for(auto thread: threads){
         pthread_join(thread, nullptr);
     }
-     */
-    pthread_join(threads[0], nullptr);
-    cout << adnInput << endl;
+    cout << arnTranscription << endl;
     return 0;
 }
 
@@ -77,16 +78,16 @@ void* makeARNtranscription(void *args) {
     for (int i = start; i < end; i++){
         switch (toupper(adnInput[i])) {
             case 'G':
-                adnInput[i] = 'C';
+                arnTranscription[i] = 'C';
                 break;
             case 'C':
-                adnInput[i] = 'G';
+                arnTranscription[i] = 'G';
                 break;
             case 'T':
-                adnInput[i] = 'A';
+                arnTranscription[i] = 'A';
                 break;
             case 'A':
-                adnInput[i] = 'U';
+                arnTranscription[i] = 'U';
                 break;
         }
     }
