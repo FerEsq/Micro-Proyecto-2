@@ -1,3 +1,3 @@
-D:/UVG/Segundo/SegundoSemestre/Microprocesadores/Laboratorios/Laboratorio5/Micro-Proyecto-2/Source/cmake-build-debug/CMakeFiles/Source.dir
-D:/UVG/Segundo/SegundoSemestre/Microprocesadores/Laboratorios/Laboratorio5/Micro-Proyecto-2/Source/cmake-build-debug/CMakeFiles/edit_cache.dir
-D:/UVG/Segundo/SegundoSemestre/Microprocesadores/Laboratorios/Laboratorio5/Micro-Proyecto-2/Source/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+C:/Users/Andres/OneDrive/Documents/UVG/4. Cuarto semestre/Progra microp/Micro-Proyecto-2/Source/cmake-build-debug/CMakeFiles/Source.dir
+C:/Users/Andres/OneDrive/Documents/UVG/4. Cuarto semestre/Progra microp/Micro-Proyecto-2/Source/cmake-build-debug/CMakeFiles/edit_cache.dir
+C:/Users/Andres/OneDrive/Documents/UVG/4. Cuarto semestre/Progra microp/Micro-Proyecto-2/Source/cmake-build-debug/CMakeFiles/rebuild_cache.dir

@@ -29,14 +29,16 @@ string aminoacids;
 void separator();
 string askDNASequence();
 void* makeARNtranscription(void *args);
+string adnInput;
 
 int main() {
-    string adnInput = askDNASequence();
+    adnInput = askDNASequence();
     nThreads = adnInput.length() / CHARS_PER_THREAD;
     pthread_t threads[nThreads];
     // INITIALIZES THE PTHREAD
     int threadPos = 0;
     stringPosition adnPos{};
+    cout<<adnInput;
     for(auto thread: threads){
         // 0 - 10 → 10 - 20 → 20 - 30
         adnPos = {CHARS_PER_THREAD*threadPos, CHARS_PER_THREAD*threadPos+1};
@@ -44,7 +46,9 @@ int main() {
     }
     for(auto thread: threads){
         pthread_join(thread, nullptr);
+
     }
+    cout<<adnInput;
     return 0;
 }
 
@@ -62,5 +66,25 @@ string askDNASequence(){
 }
 
 void* makeARNtranscription(void *args){
-    
+    stringPosition *sp;
+    sp=(stringPosition*)args;
+    int start = sp->start;
+    int end = sp->end;
+    for (int i = start; i < end; ++i) {
+        char amino = toupper(adnInput[i]);
+        switch (amino) {
+            case 'G':
+                arnTranscription[i]='C';
+                break;
+            case 'C':
+                arnTranscription[i]='G';
+                break;
+            case 'T':
+                arnTranscription[i]='A';
+                break;
+            case 'A':
+                arnTranscription[i]='U';
+                break;
+        }
+    }
 }
