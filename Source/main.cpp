@@ -22,12 +22,13 @@ struct stringPosition{
     int end;
 };
 
-int nThreads;
+int nThreads, startPosition = -1;
 string adnInput, arnTranscription, aminoacids;
 
 void separator();
-string askDNASequence();
 void* makeARNtranscription(void *args);
+string askDNASequence();
+int findStartPosition();
 
 int main() {
     adnInput = askDNASequence();
@@ -54,7 +55,13 @@ int main() {
     for(auto thread: threads){
         pthread_join(thread, nullptr);
     }
-    cout << arnTranscription << endl;
+    // FIND THE START POSITION IN THE TRANSCRIPTION (AUG)
+    startPosition = findStartPosition();
+//     SEPARATES THE ARN TRANSCRIPT INTO CODONS
+//     a partir de la posición inicial, los hilos deben sumar de 3 en 3 su posición hasta
+//     1. transcribir toda la cadena e indicar que no encontro un Stop
+//     2. encontrar un stop y mandar una señal
+
     return 0;
 }
 
@@ -91,4 +98,22 @@ void* makeARNtranscription(void *args) {
                 break;
         }
     }
+}
+
+// THIS PART MUST BE SEQUENTIAL BECAUSE IF THE STRING IS SPLIT, THERE'S A CHANCE THAT THE AUG CODON GETS CUT
+/**
+ *
+ * @return -1 if AUG isn't found
+ */
+int findStartPosition(){
+    string temp;
+    for(int i = 0; i < arnTranscription.length() - 2; i++){
+        temp = arnTranscription[i];
+        temp += arnTranscription[i+1];
+        temp += arnTranscription[i+2];
+        if(temp == "AUG"){
+            return i;
+        }
+    }
+    return -1;
 }
