@@ -26,7 +26,7 @@ int nThreads, startPosition = -1;
 string adnInput, arnTranscription, aminoacids;
 
 void separator();
-void* makeARNtranscription(void *args);
+void* makeARNtranscription(void *args), countCodons(void *args);
 string askDNASequence();
 int findStartPosition();
 
@@ -55,12 +55,19 @@ int main() {
     for(auto thread: threads){
         pthread_join(thread, nullptr);
     }
-    // FIND THE START POSITION IN THE TRANSCRIPTION (AUG)
+//     FIND THE START POSITION IN THE TRANSCRIPTION (AUG)
     startPosition = findStartPosition();
 //     SEPARATES THE ARN TRANSCRIPT INTO CODONS
-//     a partir de la posición inicial, los hilos deben sumar de 3 en 3 su posición hasta
-//     1. transcribir toda la cadena e indicar que no encontro un Stop
-//     2. encontrar un stop y mandar una señal
+    int sharedPos = startPosition;
+
+
+//    for(auto thread : threads){
+//        pthread_create(&thread, nullptr, )
+//    }
+
+//     1. Contar Codones (void function) que suma 1 cada 3 chars de arnTranscription desde start position hasta que sea >= que el arnTranscription.length()  == /3 y redondear?)
+//     2. Crear un array con esa cantidad de espacios y coloocar las 3 letras en cada posicion (void function) llevar un contador de posicion compartido
+//     3. Traducir cada espacio del array hasta reccibir la señal de stop o que haya traducido tod0 (void function) llevar un contador de posicion compartido
 
     return 0;
 }
@@ -98,6 +105,10 @@ void* makeARNtranscription(void *args) {
                 break;
         }
     }
+}
+
+void* countCodons(void *args){
+
 }
 
 // THIS PART MUST BE SEQUENTIAL BECAUSE IF THE STRING IS SPLIT, THERE'S A CHANCE THAT THE AUG CODON GETS CUT
