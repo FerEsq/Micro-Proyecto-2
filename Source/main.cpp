@@ -108,7 +108,17 @@ void* makeARNtranscription(void *args) {
 }
 
 void* countCodons(void *args){
+    auto *positions = (struct stringPosition*) args;
+    int start = positions->start;
+    int end = positions->end;
+    int pos = 0;
+    string codons[arnTranscription.size()/3];
 
+    for (int i = start; i < end; i=i+3){
+        string temp = arnTranscription.substr(i,3);
+        codons[pos] = temp;
+        pos++;
+    }
 }
 
 // THIS PART MUST BE SEQUENTIAL BECAUSE IF THE STRING IS SPLIT, THERE'S A CHANCE THAT THE AUG CODON GETS CUT
