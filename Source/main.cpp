@@ -17,6 +17,7 @@
 
 #include <iostream>
 #include <cmath>
+#include <vector>
 
 using namespace std;
 
@@ -25,9 +26,9 @@ struct stringPosition {
     int end;
 };
 
-
 int nThreads, startPosition = -1, sharedPosition = -1;
 string adnInput, arnTranscription, aminoacids;
+vector<string> codons;
 
 void separator();
 void *makeARNtranscription(void *args);
@@ -120,10 +121,14 @@ void *makeARNtranscription(void *args) {
 }
 
 void* createCodons(void *args){
-    // TO TEST IF THE ARRAY WAS CORRECTLY PASSED (IT WAS NOT)
-    int *codonsArray = (int *) args;
-    cout << codonsArray[1] << endl;
-    pthread_exit(nullptr);
+    auto *positions = (struct stringPosition*) args;
+    int start = positions->start;
+    int end = positions->end;
+
+    for (int i = start; i < end; i=i+3){
+        string temp = arnTranscription.substr(i,3);
+        codons.push_back(temp);
+    }
 }
 
 // THIS PART MUST BE SEQUENTIAL BECAUSE IF THE STRING IS SPLIT, THERE'S A CHANCE THAT THE AUG CODON GETS CUT
