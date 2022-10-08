@@ -131,6 +131,55 @@ void* createCodons(void *args){
     }
 }
 
+
+void* ARNtranslation(void *args){
+    auto *positions = (struct stringPosition*) args;
+    int start = positions->start;
+    int end = positions->end;
+
+    for (int i = start; i < end; i++){
+        string codon = codons[i];
+        switch (codon[0]) {
+            case 'U':
+                switch (codon[1]) {
+                    case 'U':
+                        if (codon[2]=='U' or codon[2]=='C'){
+
+                        }else if (codon[2]=='A' or codon[2]=='G'){
+
+                        }
+                        break;
+                    case 'C':
+
+                        break;
+                    case 'A':
+                        if (codon[2]=='U' or codon[2]=='C'){
+
+                        }else if (codon[2]=='A' or codon[2]=='G'){
+
+                        }
+                        break;
+                    case 'G':
+                        if (codon[2]=='U' or codon[2]=='C'){
+
+                        }else if (codon[2]=='A'){
+
+                        }else if (or codon[2]=='G'){
+
+                        }
+                        break;
+                }
+                break;
+            case 'C':
+                break;
+            case 'A':
+                break;
+            case 'G':
+                break;
+        }
+    }
+}
+
 // THIS PART MUST BE SEQUENTIAL BECAUSE IF THE STRING IS SPLIT, THERE'S A CHANCE THAT THE AUG CODON GETS CUT
 /**
  *
