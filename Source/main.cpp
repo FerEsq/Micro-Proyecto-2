@@ -10,6 +10,8 @@
 	Francisco Castillo - 21562
 	Andres Montoya - 21552
     Diego Lemus - 21469
+
+    Prueba: ATGATCTCGTAA
 	--------------------------------------------------------------------
 */
 
@@ -22,11 +24,12 @@ struct stringPosition{
     int end;
 };
 
-int nThreads, startPosition = -1;
+int nThreads, startPosition, nCodons = -1;
 string adnInput, arnTranscription, aminoacids;
 
 void separator();
-void* makeARNtranscription(void *args), countCodons(void *args);
+void* makeARNtranscription(void *args);
+void* countCodons(void *args);
 string askDNASequence();
 int findStartPosition();
 
@@ -48,13 +51,15 @@ int main() {
             positions[i].end = adnInput.length();
         }
     }
-    cout << adnInput << endl;
+    cout << "ADN input: " << adnInput << endl;
     for(int i = 0; i < nThreads; i++){
         pthread_create(&threads[i], nullptr, &makeARNtranscription, (void*) &positions[i]);
     }
     for(auto thread: threads){
         pthread_join(thread, nullptr);
     }
+    separator();
+    cout << "ARN transcription: " << arnTranscription << endl;
 //     FIND THE START POSITION IN THE TRANSCRIPTION (AUG)
     startPosition = findStartPosition();
 //     SEPARATES THE ARN TRANSCRIPT INTO CODONS
@@ -112,13 +117,8 @@ void* countCodons(void *args){
     int start = positions->start;
     int end = positions->end;
     int pos = 0;
-    string codons[arnTranscription.size()/3];
 
-    for (int i = start; i < arnTranscription.length(); i = i + 3){
-        string temp = arnTranscription.substr(i,3);
-        codons[pos] = temp;
-        pos++;
-    }
+    nCodons = (arnTranscription.length() - start)  / 3;
 }
 
 // THIS PART MUST BE SEQUENTIAL BECAUSE IF THE STRING IS SPLIT, THERE'S A CHANCE THAT THE AUG CODON GETS CUT
