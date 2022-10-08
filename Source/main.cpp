@@ -17,19 +17,21 @@
 
 #include <iostream>
 #include <cmath>
+
 using namespace std;
 
-struct stringPosition{
+struct stringPosition {
     int start;
     int end;
 };
 
-int nThreads, startPosition, nCodons = -1;
+
+int nThreads, startPosition = -1, sharedPosition = -1;
 string adnInput, arnTranscription, aminoacids;
 
 void separator();
-void* makeARNtranscription(void *args);
-void* countCodons(void *args);
+void *makeARNtranscription(void *args);
+void *createCodons(void *args);
 string askDNASequence();
 int findStartPosition();
 
@@ -40,34 +42,39 @@ int main() {
     pthread_t threads[nThreads];
     stringPosition positions[nThreads];
     // INITIALIZES THE arnTranscription VARIABLE
-    for(char c : adnInput){ arnTranscription += "x"; };
+    for (char c: adnInput) { arnTranscription += "x"; };
 
     // PICKS POSITIONS FOR THE THREADS
-    for(int i = 0; i < nThreads; i++){
-        positions[i].start = i*nThreads;
-        positions[i].end = (i+1)*nThreads;
+    for (int i = 0; i < nThreads; i++) {
+        positions[i].start = i * nThreads;
+        positions[i].end = (i + 1) * nThreads;
         // LOADS THE LAST THREAD THE REMAINING CHARS
-        if(i == nThreads-1){
+        if (i == nThreads - 1) {
             positions[i].end = adnInput.length();
         }
     }
     cout << "ADN input: " << adnInput << endl;
-    for(int i = 0; i < nThreads; i++){
-        pthread_create(&threads[i], nullptr, &makeARNtranscription, (void*) &positions[i]);
+    for (int i = 0; i < nThreads; i++) {
+        pthread_create(&threads[i], nullptr, &makeARNtranscription, (void *) &positions[i]);
     }
-    for(auto thread: threads){
+    for (auto thread: threads) {
         pthread_join(thread, nullptr);
     }
     separator();
     cout << "ARN transcription: " << arnTranscription << endl;
 //     FIND THE START POSITION IN THE TRANSCRIPTION (AUG)
     startPosition = findStartPosition();
+
+    //------------------------------- ATTEMPT TO SEND ARRAY TO THREADS -----------------------
+//    sharedPosition = startPosition;
 //     SEPARATES THE ARN TRANSCRIPT INTO CODONS
-    int sharedPos = startPosition;
-
-
-//    for(auto thread : threads){
-//        pthread_create(&thread, nullptr, )
+//    int nCodons = floor((arnTranscription.length() - startPosition) / 3);
+//    int codons[nCodons];
+//    for (auto thread: threads) {
+//        pthread_create(&thread, nullptr, &createCodons, (void*)&codons);
+//    }
+//    for (auto thread: threads) {
+//        pthread_join(thread, nullptr);
 //    }
 
 //     1. Contar Codones (void function) que suma 1 cada 3 chars de arnTranscription desde start position hasta que sea >= que el arnTranscription.length()  == /3 y redondear?)
@@ -77,11 +84,11 @@ int main() {
     return 0;
 }
 
-void separator(){
+void separator() {
     cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << endl;
 }
 
-string askDNASequence(){
+string askDNASequence() {
     separator();
     string temp;
     cout << "Ingrese la cadena de ADN que desea traducir:" << endl;
@@ -90,11 +97,11 @@ string askDNASequence(){
     return temp;
 }
 
-void* makeARNtranscription(void *args) {
-    auto *positions = (struct stringPosition*) args;
+void *makeARNtranscription(void *args) {
+    auto *positions = (struct stringPosition *) args;
     int start = positions->start;
     int end = positions->end;
-    for (int i = start; i < end; i++){
+    for (int i = start; i < end; i++) {
         switch (toupper(adnInput[i])) {
             case 'G':
                 arnTranscription[i] = 'C';
@@ -112,13 +119,11 @@ void* makeARNtranscription(void *args) {
     }
 }
 
-void* countCodons(void *args){
-    auto *positions = (struct stringPosition*) args;
-    int start = positions->start;
-    int end = positions->end;
-    int pos = 0;
-
-    nCodons = (arnTranscription.length() - start)  / 3;
+void* createCodons(void *args){
+    // TO TEST IF THE ARRAY WAS CORRECTLY PASSED (IT WAS NOT)
+    int *codonsArray = (int *) args;
+    cout << codonsArray[1] << endl;
+    pthread_exit(nullptr);
 }
 
 // THIS PART MUST BE SEQUENTIAL BECAUSE IF THE STRING IS SPLIT, THERE'S A CHANCE THAT THE AUG CODON GETS CUT
@@ -126,13 +131,13 @@ void* countCodons(void *args){
  *
  * @return -1 if AUG isn't found
  */
-int findStartPosition(){
+int findStartPosition() {
     string temp;
-    for(int i = 0; i < arnTranscription.length() - 2; i++){
+    for (int i = 0; i < arnTranscription.length() - 2; i++) {
         temp = arnTranscription[i];
-        temp += arnTranscription[i+1];
-        temp += arnTranscription[i+2];
-        if(temp == "AUG"){
+        temp += arnTranscription[i + 1];
+        temp += arnTranscription[i + 2];
+        if (temp == "AUG") {
             return i;
         }
     }
