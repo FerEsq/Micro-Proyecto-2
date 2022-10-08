@@ -73,7 +73,7 @@ int main() {
 }
 
 void separator(){
-    cout << "=============================================================" << endl;
+    cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << endl;
 }
 
 string askDNASequence(){
@@ -114,7 +114,7 @@ void* countCodons(void *args){
     int pos = 0;
     string codons[arnTranscription.size()/3];
 
-    for (int i = start; i < end; i=i+3){
+    for (int i = start; i < arnTranscription.length(); i = i + 3){
         string temp = arnTranscription.substr(i,3);
         codons[pos] = temp;
         pos++;
