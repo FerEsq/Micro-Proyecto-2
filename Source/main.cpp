@@ -11,7 +11,7 @@
 	Andres Montoya - 21552
     Diego Lemus - 21469
 
-    Prueba: ATGATCTCGTAA
+    Prueba: TACTAGAGCATT
 	--------------------------------------------------------------------
 */
 
@@ -55,14 +55,31 @@ int main() {
         }
     }
     cout << "ADN input: " << adnInput << endl;
+    
     for (int i = 0; i < nThreads; i++) {
         pthread_create(&threads[i], nullptr, &makeARNtranscription, (void *) &positions[i]);
     }
     for (auto thread: threads) {
         pthread_join(thread, nullptr);
     }
+
     separator();
     cout << "ARN transcription: " << arnTranscription << endl;
+    separator();
+
+    for (int i = 0; i < nThreads; i++) {
+        pthread_create(&threads[i], nullptr, &createCodons, (void *) &positions[i]);
+    }
+    for (auto thread: threads) {
+        pthread_join(thread, nullptr);
+    }
+
+    cout << "ARN separated into codons: " << endl;
+    for (int i = 0; i < codons.size(); i++) {
+        cout << codons.at(i) << endl;
+    }
+    separator();
+
 //     FIND THE START POSITION IN THE TRANSCRIPTION (AUG)
     startPosition = findStartPosition();
 
@@ -125,7 +142,7 @@ void* createCodons(void *args){
     int start = positions->start;
     int end = positions->end;
 
-    for (int i = start; i < end; i=i+3){
+    for (int i = start; i < arnTranscription.length() - 2; i = i + 3){
         string temp = arnTranscription.substr(i,3);
         codons.push_back(temp);
     }
@@ -164,7 +181,7 @@ void* ARNtranslation(void *args){
 
                         }else if (codon[2]=='A'){
 
-                        }else if (or codon[2]=='G'){
+                        }else if (codon[2]=='G'){
 
                         }
                         break;
