@@ -25,10 +25,18 @@ struct stringPosition {
     int start;
     int end;
 };
+struct codonPosition {
+    int start;
+    int id;
+};
+struct codonInfo{
+    int pos;
+    string codon;
+};
 
 int nThreads, startPosition = -1, sharedPosition = -1;
 string adnInput, arnTranscription, aminoacids;
-vector<string> codons;
+vector<codonInfo> codons;
 
 void separator();
 void *makeARNtranscription(void *args);
@@ -42,10 +50,12 @@ int main() {
     nThreads = ceil(sqrt(adnInput.length()));
     pthread_t threads[nThreads];
     stringPosition positions[nThreads];
+    codonPosition positions_codons[nThreads];
     // INITIALIZES THE arnTranscription VARIABLE
     for (char c: adnInput) { arnTranscription += "x"; };
 
     // PICKS POSITIONS FOR THE THREADS
+
     for (int i = 0; i < nThreads; i++) {
         positions[i].start = i * nThreads;
         positions[i].end = (i + 1) * nThreads;
@@ -54,8 +64,13 @@ int main() {
             positions[i].end = adnInput.length();
         }
     }
+
+    for (int i = 0; i < nThreads; i++) {
+        positions_codons[i].start = i*3;
+        positions_codons[i].id = i;
+    }
     cout << "ADN input: " << adnInput << endl;
-    
+
     for (int i = 0; i < nThreads; i++) {
         pthread_create(&threads[i], nullptr, &makeARNtranscription, (void *) &positions[i]);
     }
@@ -67,8 +82,9 @@ int main() {
     cout << "ARN transcription: " << arnTranscription << endl;
     separator();
 
+
     for (int i = 0; i < nThreads; i++) {
-        pthread_create(&threads[i], nullptr, &createCodons, (void *) &positions[i]);
+        pthread_create(&threads[i], nullptr, &createCodons, (void *) &positions_codons[i]);
     }
     for (auto thread: threads) {
         pthread_join(thread, nullptr);
@@ -76,7 +92,11 @@ int main() {
 
     cout << "ARN separated into codons: " << endl;
     for (int i = 0; i < codons.size(); i++) {
-        cout << codons.at(i) << endl;
+        for (int j = 0; j < codons.size(); j++) {
+            if(codons.at(j).pos==i) {
+                cout << codons.at(j).codon << endl;
+            }
+        }
     }
     separator();
 
@@ -138,18 +158,19 @@ void *makeARNtranscription(void *args) {
 }
 
 void* createCodons(void *args){
-    auto *positions = (struct stringPosition*) args;
+    auto *positions = (struct codonPosition*) args;
     int start = positions->start;
-    int end = positions->end;
+    int i = positions->id;
+    string temp = arnTranscription.substr(start,3);
+    codonInfo codon;
+    codon.codon=temp;
+    codon.pos=i;
+    codons.push_back(codon);
 
-    for (int i = start; i < arnTranscription.length() - 2; i = i + 3){
-        string temp = arnTranscription.substr(i,3);
-        codons.push_back(temp);
-    }
 }
 
-
-void* ARNtranslation(void *args){
+//IMPORTANTE, funcion comentareada ya que en la linea 179 se cambió el tipo de dato del vector "codons" de string a la struct de tipo codonInfo el cual contiene la posición del codon
+/*void* ARNtranslation(void *args){
     auto *positions = (struct stringPosition*) args;
     int start = positions->start;
     int end = positions->end;
@@ -195,7 +216,7 @@ void* ARNtranslation(void *args){
                 break;
         }
     }
-}
+}*/
 
 // THIS PART MUST BE SEQUENTIAL BECAUSE IF THE STRING IS SPLIT, THERE'S A CHANCE THAT THE AUG CODON GETS CUT
 /**
