@@ -82,6 +82,8 @@ int main() {
     //Generates the position to start splitting codons
     startPosition = findStartPosition();
     endPosition = findEndPosition();
+    cout<<"Start"<<startPosition<<endl;
+    cout<<"End"<<endPosition<<endl;
     int nThreadsC = ceil((endPosition-startPosition)/3);
     pthread_t threadsC[nThreadsC];
     for (int i = 0; i < nThreadsC; i++) {
@@ -245,10 +247,11 @@ int findStartPosition() {
  */
 int findEndPosition() {
     string temp;
-    for (int i = startPosition; i < arnTranscription.length() - startPosition; i+=3) {
+    for (int i = startPosition; i < arnTranscription.length(); i+=3) {
         temp = arnTranscription[i];
         temp += arnTranscription[i + 1];
         temp += arnTranscription[i + 2];
+        cout<<"temp: "<<temp<<endl;
         if (temp == "UAA" or temp == "UAG" or temp == "UGA") {
             return i+2;
         }
