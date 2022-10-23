@@ -34,7 +34,7 @@ struct codonInfo{
     string codon;
 };
 
-int nThreads, startPosition = -1, sharedPosition = -1;
+int nThreads, startPosition = -1, sharedPosition = -1, endPosition =-1;
 string adnInput, arnTranscription, aminoacids;
 vector<codonInfo> codons;
 
@@ -43,6 +43,7 @@ void *makeARNtranscription(void *args);
 void *createCodons(void *args);
 string askDNASequence();
 int findStartPosition();
+int findEndPosition();
 
 int main() {
     adnInput = askDNASequence();
@@ -65,7 +66,6 @@ int main() {
             positions[i].end = adnInput.length();
         }
     }
-    cout<<"Start"<<startPosition<<endl;
     cout << "ADN input: " << adnInput << endl;
 
     for (int i = 0; i < nThreads; i++) {
@@ -81,14 +81,17 @@ int main() {
 
     //Generates the position to start splitting codons
     startPosition = findStartPosition();
-    for (int i = 0; i < nThreads; i++) {
+    endPosition = findEndPosition();
+    int nThreadsC = ceil((endPosition-startPosition)/3);
+    pthread_t threadsC[nThreadsC];
+    for (int i = 0; i < nThreadsC; i++) {
         positions_codons[i].start = i*3+startPosition;
         positions_codons[i].id = i;
     }
-    for (int i = 0; i < nThreads; i++) {
-        pthread_create(&threads[i], nullptr, &createCodons, (void *) &positions_codons[i]);
+    for (int i = 0; i < nThreadsC; i++) {
+        pthread_create(&threadsC[i], nullptr, &createCodons, (void *) &positions_codons[i]);
     }
-    for (auto thread: threads) {
+    for (auto thread: threadsC) {
         pthread_join(thread, nullptr);
     }
 
@@ -102,8 +105,6 @@ int main() {
     }
     separator();
 
-    //FIND THE START POSITION IN THE TRANSCRIPTION (AUG)
-    cout<<"Start"<<startPosition<<endl;
 
     //------------------------------- ATTEMPT TO SEND ARRAY TO THREADS -----------------------
 //    sharedPosition = startPosition;
@@ -233,6 +234,23 @@ int findStartPosition() {
         temp += arnTranscription[i + 2];
         if (temp == "AUG") {
             return i;
+        }
+    }
+    //cout << "res"<<res<<endl;
+    return -1;
+}
+/**
+ *
+ * @return -1 if AUG isn't found
+ */
+int findEndPosition() {
+    string temp;
+    for (int i = startPosition; i < arnTranscription.length() - startPosition; i+=3) {
+        temp = arnTranscription[i];
+        temp += arnTranscription[i + 1];
+        temp += arnTranscription[i + 2];
+        if (temp == "UAA" or temp == "UAG" or temp == "UGA") {
+            return i+2;
         }
     }
     //cout << "res"<<res<<endl;
