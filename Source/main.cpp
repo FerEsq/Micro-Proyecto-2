@@ -54,6 +54,7 @@ int main() {
     // INITIALIZES THE arnTranscription VARIABLE
     for (char c: adnInput) { arnTranscription += "x"; };
 
+
     // PICKS POSITIONS FOR THE THREADS
 
     for (int i = 0; i < nThreads; i++) {
@@ -64,11 +65,7 @@ int main() {
             positions[i].end = adnInput.length();
         }
     }
-
-    for (int i = 0; i < nThreads; i++) {
-        positions_codons[i].start = i*3;
-        positions_codons[i].id = i;
-    }
+    cout<<"Start"<<startPosition<<endl;
     cout << "ADN input: " << adnInput << endl;
 
     for (int i = 0; i < nThreads; i++) {
@@ -82,7 +79,12 @@ int main() {
     cout << "ARN transcription: " << arnTranscription << endl;
     separator();
 
-
+    //Generates the position to start splitting codons
+    startPosition = findStartPosition();
+    for (int i = 0; i < nThreads; i++) {
+        positions_codons[i].start = i*3+startPosition;
+        positions_codons[i].id = i;
+    }
     for (int i = 0; i < nThreads; i++) {
         pthread_create(&threads[i], nullptr, &createCodons, (void *) &positions_codons[i]);
     }
@@ -100,8 +102,8 @@ int main() {
     }
     separator();
 
-//     FIND THE START POSITION IN THE TRANSCRIPTION (AUG)
-    startPosition = findStartPosition();
+    //FIND THE START POSITION IN THE TRANSCRIPTION (AUG)
+    cout<<"Start"<<startPosition<<endl;
 
     //------------------------------- ATTEMPT TO SEND ARRAY TO THREADS -----------------------
 //    sharedPosition = startPosition;
@@ -233,5 +235,6 @@ int findStartPosition() {
             return i;
         }
     }
+    //cout << "res"<<res<<endl;
     return -1;
 }
