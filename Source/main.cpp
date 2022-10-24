@@ -108,7 +108,7 @@ int main() {
 
     cout << "ARN separated into codons: " << endl;
     for (int i = 0; i < codons.size(); i++) {
-        for (auto & codon : codons) {
+        for (auto &codon: codons) {
             if (codon.pos == i) {
                 cout << codon.codon << endl;
             }
@@ -118,14 +118,14 @@ int main() {
     // STARTS THE TRANSLATION
     pthread_mutex_init(&sharedPositionMutex, nullptr);
     for (int i = 0; i < nThreadsC; i++) {
-        pthread_create(&threadsC[i], nullptr, &makeARNtranslation, (void*) &codons.at(i));
+        pthread_create(&threadsC[i], nullptr, &makeARNtranslation, (void *) &codons.at(i));
     }
     for (auto thread: threadsC) {
         pthread_join(thread, nullptr);
     }
     cout << "Su cadena de ADN traducida a proteinas es: " << endl;
     for (int i = 0; i < codons.size(); i++) {
-        for (auto & codon : codons) {
+        for (auto &codon: codons) {
             if (codon.pos == i) {
                 cout << codon.protein << endl;
             }
@@ -170,33 +170,32 @@ void *makeARNtranscription(void *args) {
     }
 }
 
-string makeTranslation(string codon){
+string makeTranslation(string codon) {
     switch (codon[0]) {
         case 'U':
             switch (codon[1]) {
                 case 'U':
-                    if (codon[2]=='U' or codon[2]=='C'){
+                    if (codon[2] == 'U' or codon[2] == 'C') {
                         return "Phe";
-                    }else if (codon[2]=='A' or codon[2]=='G'){
+                    } else if (codon[2] == 'A' or codon[2] == 'G') {
                         return "Leu";
                     }
                     break;
                 case 'C':
                     return "Ser";
-                    break;
                 case 'A':
-                    if (codon[2]=='U' or codon[2]=='C'){
+                    if (codon[2] == 'U' or codon[2] == 'C') {
                         return "Tyr";
-                    }else if (codon[2]=='A' or codon[2]=='G'){
+                    } else if (codon[2] == 'A' or codon[2] == 'G') {
                         return "STOP";
                     }
                     break;
                 case 'G':
-                    if (codon[2]=='U' or codon[2]=='C'){
+                    if (codon[2] == 'U' or codon[2] == 'C') {
                         return "Cys";
-                    }else if (codon[2]=='A'){
+                    } else if (codon[2] == 'A') {
                         return "STOP";
-                    }else if (codon[2]=='G'){
+                    } else if (codon[2] == 'G') {
                         return "Try";
                     }
                     break;
@@ -206,45 +205,41 @@ string makeTranslation(string codon){
             switch (codon[1]) {
                 case 'U':
                     return "Leu";
-                    break;
                 case 'C':
                     return "Pro";
-                    break;
                 case 'A':
-                    if (codon[2]=='U' or codon[2]=='C'){
+                    if (codon[2] == 'U' or codon[2] == 'C') {
                         return "Gis";
-                    }else if (codon[2]=='A' or codon[2]=='G'){
+                    } else if (codon[2] == 'A' or codon[2] == 'G') {
                         return "Gln";
                     }
                     break;
                 case 'G':
                     return "Arg";
-                    break;
             }
             break;
         case 'A':
             switch (codon[1]) {
                 case 'U':
-                    if (codon[2]=='U' or codon[2]=='C' or codon[2]=='A'){
+                    if (codon[2] == 'U' or codon[2] == 'C' or codon[2] == 'A') {
                         return "Iso";
-                    }else if (codon[2]=='G'){
+                    } else if (codon[2] == 'G') {
                         return "Met";
                     }
                     break;
                 case 'C':
                     return "Thr";
-                    break;
                 case 'A':
-                    if (codon[2]=='U' or codon[2]=='C'){
+                    if (codon[2] == 'U' or codon[2] == 'C') {
                         return "Asn";
-                    }else if (codon[2]=='A' or codon[2]=='G'){
+                    } else if (codon[2] == 'A' or codon[2] == 'G') {
                         return "Lys";
                     }
                     break;
                 case 'G':
-                    if (codon[2]=='U' or codon[2]=='C'){
+                    if (codon[2] == 'U' or codon[2] == 'C') {
                         return "Ser";
-                    }else if (codon[2]=='A' or codon[2]=='G'){
+                    } else if (codon[2] == 'A' or codon[2] == 'G') {
                         return "Arg";
                     }
                     break;
@@ -256,28 +251,23 @@ string makeTranslation(string codon){
                     return "Val";
                 case 'C':
                     return "Ala";
-                    break;
                 case 'A':
-                    if (codon[2]=='U' or codon[2]=='C'){
+                    if (codon[2] == 'U' or codon[2] == 'C') {
                         return "Asp";
-                    }else if (codon[2]=='A' or codon[2]=='G'){
+                    } else if (codon[2] == 'A' or codon[2] == 'G') {
                         return "Glu";
                     }
                     break;
                 case 'G':
                     return "Gly";
-                    break;
             }
             break;
 
     }
-    /*for (int i = 0; i < codonsI.size(); i++) {
-        return "Hola" + codonsI.at(i).protein;
-    }*/
 }
 
 void *makeARNtranslation(void *args) {
-    auto *localCodon = (struct codonInfo*) args;
+    auto *localCodon = (struct codonInfo *) args;
     pthread_mutex_lock(&sharedPositionMutex);
     // HACER AQUI LA TRADUCCION
     localCodon->protein = makeTranslation(localCodon->codon);
