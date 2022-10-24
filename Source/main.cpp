@@ -15,48 +15,55 @@
 	--------------------------------------------------------------------
 */
 
+// LIBRARIES
 #include <iostream>
 #include <cmath>
 #include <vector>
 
 using namespace std;
 
+// STRUCTURES
+/*
+ * Input String's position
+ */
 struct stringPosition {
     int start;
     int end;
 };
+/*
+ * Codon's individual position
+ */
 struct codonPosition {
     int start;
     int id;
 };
+/*
+ * Codon & Protein position
+ */
 struct codonInfo {
     int pos{};
     string codon;
     string protein;
 };
 
+// VARIABLES
 int nThreads, startPosition = -1, endPosition = -1, sharedPosition = 0;
 string adnInput, arnTranscription;
 vector<codonInfo> codons;
 pthread_mutex_t sharedPositionMutex;
 pthread_cond_t canPrint;
 
+// FUNCIONES
 void separator();
-
 void *makeARNtranscription(void *args);
-
 void *makeARNtranslation(void *args);
-
 void *createCodons(void *args);
-
 string askDNASequence();
-
 int findStartPosition();
-
 int findEndPosition();
-
 void* parallelPrint(void* arg);
 
+// MAIN
 int main() {
     adnInput = askDNASequence();
     // DISTRIBUTES WORKLOAD
@@ -85,6 +92,7 @@ int main() {
         pthread_join(thread, nullptr);
     }
 
+    // ARN PRINTING
     separator();
     cout << "ARN transcription: " << arnTranscription << endl;
     separator();
