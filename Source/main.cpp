@@ -129,10 +129,11 @@ int main() {
     for (int i = 0; i < codons.size(); i++) {
         for (auto &codon: codons) {
             if (codon.pos == i) {
-                cout << codon.protein << endl;
+                cout << codon.protein << " ";
             }
         }
     }
+    cout << endl;
     pthread_mutex_destroy(&sharedPositionMutex);
     return 0;
 }
@@ -321,7 +322,6 @@ int findEndPosition() {
         temp = arnTranscription[i];
         temp += arnTranscription[i + 1];
         temp += arnTranscription[i + 2];
-        cout << "temp: " << temp << endl;
         if (temp == "UAA" or temp == "UAG" or temp == "UGA") {
             return i + 2;
         }
