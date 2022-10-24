@@ -30,15 +30,13 @@ struct codonPosition {
     int id;
 };
 struct codonInfo {
-    int pos;
+    int pos{};
     string codon;
     string protein;
 };
 
-int nThreads, startPosition = -1, sharedPosition = -1, endPosition = -1;
-int actualID = 0;
-string protein;
-string adnInput, arnTranscription, aminoacids;
+int nThreads, startPosition = -1, endPosition = -1;
+string adnInput, arnTranscription;
 vector<codonInfo> codons;
 pthread_mutex_t sharedPositionMutex;
 
@@ -88,17 +86,19 @@ int main() {
     cout << "ARN transcription: " << arnTranscription << endl;
     separator();
 
-    //Generates the position to start splitting codons
+    // FINDS THE STARTING CODON (AUG) POSITION AND THE STOP CODON FOR THEM TO BE SPLITTED
     startPosition = findStartPosition();
     endPosition = findEndPosition();
-    cout << "Start" << startPosition << endl;
-    cout << "End" << endPosition << endl;
+
+    // CREATES nThreads FOR THE CODONS
     int nThreadsC = ceil((endPosition - startPosition) / 3);
     pthread_t threadsC[nThreadsC];
+    // ASSIGNS THE POSITIONS OF THE CODONS FOR MANIPULATION IN THREADS
     for (int i = 0; i < nThreadsC; i++) {
         positions_codons[i].start = i * 3 + startPosition;
         positions_codons[i].id = i;
     }
+    // SPLITS THE CODONS IN PARALLEL
     for (int i = 0; i < nThreadsC; i++) {
         pthread_create(&threadsC[i], nullptr, &createCodons, (void *) &positions_codons[i]);
     }
@@ -106,16 +106,18 @@ int main() {
         pthread_join(thread, nullptr);
     }
 
-    cout << "ARN separated into codons: " << endl;
+    // PRINTS THE SPLIT CODONS IN ORDER
+    cout << "ARN ha sido separado en los codones: ";
     for (int i = 0; i < codons.size(); i++) {
         for (auto &codon: codons) {
             if (codon.pos == i) {
-                cout << codon.codon << endl;
+                cout << codon.codon << " ";
             }
         }
     }
+    cout << endl;
     separator();
-    // STARTS THE TRANSLATION
+    // STARTS THE TRANSLATION IN PARALLEL
     pthread_mutex_init(&sharedPositionMutex, nullptr);
     for (int i = 0; i < nThreadsC; i++) {
         pthread_create(&threadsC[i], nullptr, &makeARNtranslation, (void *) &codons.at(i));
@@ -123,7 +125,7 @@ int main() {
     for (auto thread: threadsC) {
         pthread_join(thread, nullptr);
     }
-    cout << "Su cadena de ADN traducida a proteinas es: " << endl;
+    cout << "Las proteinas producidas por el ADN son: " << endl;
     for (int i = 0; i < codons.size(); i++) {
         for (auto &codon: codons) {
             if (codon.pos == i) {
@@ -168,6 +170,7 @@ void *makeARNtranscription(void *args) {
                 break;
         }
     }
+    return nullptr;
 }
 
 string makeTranslation(string codon) {
@@ -264,6 +267,7 @@ string makeTranslation(string codon) {
             break;
 
     }
+    return "";
 }
 
 void *makeARNtranslation(void *args) {
