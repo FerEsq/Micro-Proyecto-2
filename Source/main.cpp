@@ -170,111 +170,106 @@ void *makeARNtranscription(void *args) {
     }
 }
 
-string makeTranslation(vector<codonInfo> codonsI){
-    for (int i = 0; i < codonsI.size(); i++){
-        codonInfo codon = codonsI.at(i);
-        cout << codon.codon << endl;
-        switch (codonsI.at(i).codon[0]) {
-            case 'U':
-                switch (codonsI.at(i).codon[1]) {
-                    case 'U':
-                        if (codonsI.at(i).codon[2]=='U' or codonsI.at(i).codon[2]=='C'){
-                            codonsI.at(i).protein = "Phe";
-                        }else if (codonsI.at(i).codon[2]=='A' or codonsI.at(i).codon[2]=='G'){
-                            codonsI.at(i).protein = "Leu";
-                        }
-                        break;
-                    case 'C':
-                        codonsI.at(i).protein = "Ser";
-                        break;
-                    case 'A':
-                        if (codonsI.at(i).codon[2]=='U' or codonsI.at(i).codon[2]=='C'){
-                            codonsI.at(i).protein = "Tyr";
-                        }else if (codonsI.at(i).codon[2]=='A' or codonsI.at(i).codon[2]=='G'){
-                            codonsI.at(i).protein = "STOP";
-                        }
-                        break;
-                    case 'G':
-                        if (codonsI.at(i).codon[2]=='U' or codonsI.at(i).codon[2]=='C'){
-                            codonsI.at(i).protein = "Cys";
-                        }else if (codonsI.at(i).codon[2]=='A'){
-                            codonsI.at(i).protein = "STOP";
-                        }else if (codonsI.at(i).codon[2]=='G'){
-                            codonsI.at(i).protein = "Try";
-                        }
-                        break;
-                }
-                break;
-            case 'C':
-                switch (codonsI.at(i).codon[1]) {
-                    case 'U':
-                        codonsI.at(i).protein = "Leu";
-                        break;
-                    case 'C':
-                        codonsI.at(i).protein = "Pro";
-                        break;
-                    case 'A':
-                        if (codonsI.at(i).codon[2]=='U' or codonsI.at(i).codon[2]=='C'){
-                            codonsI.at(i).protein = "Gis";
-                        }else if (codonsI.at(i).codon[2]=='A' or codonsI.at(i).codon[2]=='G'){
-                            codonsI.at(i).protein = "Gln";
-                        }
-                        break;
-                    case 'G':
-                        codonsI.at(i).protein = "Arg";
-                        break;
-                }
-                break;
-            case 'A':
-                switch (codonsI.at(i).codon[1]) {
-                    case 'U':
-                        if (codonsI.at(i).codon[2]=='U' or codonsI.at(i).codon[2]=='C' or codonsI.at(i).codon[2]=='A'){
-                            codonsI.at(i).protein = "Iso";
-                        }else if (codonsI.at(i).codon[2]=='G'){
-                            codonsI.at(i).protein = "Met";
-                        }
-                        break;
-                    case 'C':
-                        codonsI.at(i).protein = "Thr";
-                        break;
-                    case 'A':
-                        if (codonsI.at(i).codon[2]=='U' or codonsI.at(i).codon[2]=='C'){
-                            codonsI.at(i).protein = "Asn";
-                        }else if (codonsI.at(i).codon[2]=='A' or codonsI.at(i).codon[2]=='G'){
-                            codonsI.at(i).protein = "Lys";
-                        }
-                        break;
-                    case 'G':
-                        if (codonsI.at(i).codon[2]=='U' or codonsI.at(i).codon[2]=='C'){
-                            codonsI.at(i).protein = "Ser";
-                        }else if (codonsI.at(i).codon[2]=='A' or codonsI.at(i).codon[2]=='G'){
-                            codonsI.at(i).protein = "Arg";
-                        }
-                        break;
-                }
-                break;
-            case 'G':
-                switch (codonsI.at(i).codon[1]) {
-                    case 'U':
-                        codonsI.at(i).protein = "Val";
-                    case 'C':
-                        codonsI.at(i).protein = "Ala";
-                        break;
-                    case 'A':
-                        if (codonsI.at(i).codon[2]=='U' or codonsI.at(i).codon[2]=='C'){
-                            codonsI.at(i).protein = "Asp";
-                        }else if (codonsI.at(i).codon[2]=='A' or codonsI.at(i).codon[2]=='G'){
-                            codonsI.at(i).protein = "Glu";
-                        }
-                        break;
-                    case 'G':
-                        codonsI.at(i).protein = "Gly";
-                        break;
-                }
-                break;
+string makeTranslation(string codon){
+    switch (codon[0]) {
+        case 'U':
+            switch (codon[1]) {
+                case 'U':
+                    if (codon[2]=='U' or codon[2]=='C'){
+                        return "Phe";
+                    }else if (codon[2]=='A' or codon[2]=='G'){
+                        return "Leu";
+                    }
+                    break;
+                case 'C':
+                    return "Ser";
+                    break;
+                case 'A':
+                    if (codon[2]=='U' or codon[2]=='C'){
+                        return "Tyr";
+                    }else if (codon[2]=='A' or codon[2]=='G'){
+                        return "STOP";
+                    }
+                    break;
+                case 'G':
+                    if (codon[2]=='U' or codon[2]=='C'){
+                        return "Cys";
+                    }else if (codon[2]=='A'){
+                        return "STOP";
+                    }else if (codon[2]=='G'){
+                        return "Try";
+                    }
+                    break;
+            }
+            break;
+        case 'C':
+            switch (codon[1]) {
+                case 'U':
+                    return "Leu";
+                    break;
+                case 'C':
+                    return "Pro";
+                    break;
+                case 'A':
+                    if (codon[2]=='U' or codon[2]=='C'){
+                        return "Gis";
+                    }else if (codon[2]=='A' or codon[2]=='G'){
+                        return "Gln";
+                    }
+                    break;
+                case 'G':
+                    return "Arg";
+                    break;
+            }
+            break;
+        case 'A':
+            switch (codon[1]) {
+                case 'U':
+                    if (codon[2]=='U' or codon[2]=='C' or codon[2]=='A'){
+                        return "Iso";
+                    }else if (codon[2]=='G'){
+                        return "Met";
+                    }
+                    break;
+                case 'C':
+                    return "Thr";
+                    break;
+                case 'A':
+                    if (codon[2]=='U' or codon[2]=='C'){
+                        return "Asn";
+                    }else if (codon[2]=='A' or codon[2]=='G'){
+                        return "Lys";
+                    }
+                    break;
+                case 'G':
+                    if (codon[2]=='U' or codon[2]=='C'){
+                        return "Ser";
+                    }else if (codon[2]=='A' or codon[2]=='G'){
+                        return "Arg";
+                    }
+                    break;
+            }
+            break;
+        case 'G':
+            switch (codon[1]) {
+                case 'U':
+                    return "Val";
+                case 'C':
+                    return "Ala";
+                    break;
+                case 'A':
+                    if (codon[2]=='U' or codon[2]=='C'){
+                        return "Asp";
+                    }else if (codon[2]=='A' or codon[2]=='G'){
+                        return "Glu";
+                    }
+                    break;
+                case 'G':
+                    return "Gly";
+                    break;
+            }
+            break;
 
-        }
-        cout << codon.protein << endl;
     }
     /*for (int i = 0; i < codonsI.size(); i++) {
         return "Hola" + codonsI.at(i).protein;
@@ -285,7 +280,7 @@ void *makeARNtranslation(void *args) {
     auto *localCodon = (struct codonInfo*) args;
     pthread_mutex_lock(&sharedPositionMutex);
     // HACER AQUI LA TRADUCCION
-    localCodon->protein = makeTranslation(codons);
+    localCodon->protein = makeTranslation(localCodon->codon);
     //
     pthread_mutex_unlock(&sharedPositionMutex);
     pthread_exit(nullptr);
