@@ -35,10 +35,11 @@ struct codonInfo {
     string protein;
 };
 
-int nThreads, startPosition = -1, endPosition = -1;
+int nThreads, startPosition = -1, endPosition = -1, sharedPosition = 0;
 string adnInput, arnTranscription;
 vector<codonInfo> codons;
 pthread_mutex_t sharedPositionMutex;
+pthread_cond_t canPrint;
 
 void separator();
 
@@ -53,6 +54,8 @@ string askDNASequence();
 int findStartPosition();
 
 int findEndPosition();
+
+void* parallelPrint(void* arg);
 
 int main() {
     adnInput = askDNASequence();
@@ -125,17 +128,32 @@ int main() {
     for (auto thread: threadsC) {
         pthread_join(thread, nullptr);
     }
+    // PARALLEL PRINTING
+    pthread_cond_init(&canPrint, nullptr);
     cout << "Las proteinas producidas por el ADN son: " << endl;
-    for (int i = 0; i < codons.size(); i++) {
-        for (auto &codon: codons) {
-            if (codon.pos == i) {
-                cout << codon.protein << " ";
-            }
-        }
+    for (int i = 0; i < nThreadsC; i++) {
+        pthread_create(&threadsC[i], nullptr, &parallelPrint, (void*) &codons.at(i));
+    }
+    for (auto thread: threadsC) {
+        pthread_join(thread, nullptr);
     }
     cout << endl;
+    pthread_cond_destroy(&canPrint);
     pthread_mutex_destroy(&sharedPositionMutex);
     return 0;
+}
+
+void* parallelPrint(void* arg){
+    auto codon = (struct codonInfo *) arg;
+    pthread_mutex_lock(&sharedPositionMutex);
+    while(sharedPosition != codon->pos){
+        pthread_cond_wait(&canPrint, &sharedPositionMutex);
+    }
+    cout << codon->protein << endl;
+    sharedPosition++;
+    pthread_cond_signal(&canPrint);
+    pthread_mutex_unlock(&sharedPositionMutex);
+    pthread_exit(nullptr);
 }
 
 void separator() {
