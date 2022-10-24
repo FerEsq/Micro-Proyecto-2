@@ -49,8 +49,8 @@
 	"kind" : "codemodel",
 	"paths" : 
 	{
-		"build" : "D:/UVG/Segundo/SegundoSemestre/Microprocesadores/Laboratorios/Laboratorio5/Micro-Proyecto-2/Source/cmake-build-debug",
-		"source" : "D:/UVG/Segundo/SegundoSemestre/Microprocesadores/Laboratorios/Laboratorio5/Micro-Proyecto-2/Source"
+		"build" : "D:/UVG/Segundo/SegundoSemestre/Microprocesadores/Micro-Proyecto-2/Source/cmake-build-debug",
+		"source" : "D:/UVG/Segundo/SegundoSemestre/Microprocesadores/Micro-Proyecto-2/Source"
 	},
 	"version" : 
 	{

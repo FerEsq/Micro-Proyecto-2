@@ -29,20 +29,31 @@ struct codonPosition {
     int start;
     int id;
 };
-struct codonInfo{
+struct codonInfo {
     int pos;
     string codon;
+    string protein;
 };
 
-int nThreads, startPosition = -1, sharedPosition = -1, endPosition =-1;
+int nThreads, startPosition = -1, sharedPosition = -1, endPosition = -1;
+int actualID = 0;
+string protein;
 string adnInput, arnTranscription, aminoacids;
 vector<codonInfo> codons;
+pthread_mutex_t sharedPositionMutex;
 
 void separator();
+
 void *makeARNtranscription(void *args);
+
+void *makeARNtranslation(void *args);
+
 void *createCodons(void *args);
+
 string askDNASequence();
+
 int findStartPosition();
+
 int findEndPosition();
 
 int main() {
@@ -55,9 +66,7 @@ int main() {
     // INITIALIZES THE arnTranscription VARIABLE
     for (char c: adnInput) { arnTranscription += "x"; };
 
-
     // PICKS POSITIONS FOR THE THREADS
-
     for (int i = 0; i < nThreads; i++) {
         positions[i].start = i * nThreads;
         positions[i].end = (i + 1) * nThreads;
@@ -82,12 +91,12 @@ int main() {
     //Generates the position to start splitting codons
     startPosition = findStartPosition();
     endPosition = findEndPosition();
-    cout<<"Start"<<startPosition<<endl;
-    cout<<"End"<<endPosition<<endl;
-    int nThreadsC = ceil((endPosition-startPosition)/3);
+    cout << "Start" << startPosition << endl;
+    cout << "End" << endPosition << endl;
+    int nThreadsC = ceil((endPosition - startPosition) / 3);
     pthread_t threadsC[nThreadsC];
     for (int i = 0; i < nThreadsC; i++) {
-        positions_codons[i].start = i*3+startPosition;
+        positions_codons[i].start = i * 3 + startPosition;
         positions_codons[i].id = i;
     }
     for (int i = 0; i < nThreadsC; i++) {
@@ -99,31 +108,30 @@ int main() {
 
     cout << "ARN separated into codons: " << endl;
     for (int i = 0; i < codons.size(); i++) {
-        for (int j = 0; j < codons.size(); j++) {
-            if(codons.at(j).pos==i) {
-                cout << codons.at(j).codon << endl;
+        for (auto & codon : codons) {
+            if (codon.pos == i) {
+                cout << codon.codon << endl;
             }
         }
     }
     separator();
-
-
-    //------------------------------- ATTEMPT TO SEND ARRAY TO THREADS -----------------------
-//    sharedPosition = startPosition;
-//     SEPARATES THE ARN TRANSCRIPT INTO CODONS
-//    int nCodons = floor((arnTranscription.length() - startPosition) / 3);
-//    int codons[nCodons];
-//    for (auto thread: threads) {
-//        pthread_create(&thread, nullptr, &createCodons, (void*)&codons);
-//    }
-//    for (auto thread: threads) {
-//        pthread_join(thread, nullptr);
-//    }
-
-//     1. Contar Codones (void function) que suma 1 cada 3 chars de arnTranscription desde start position hasta que sea >= que el arnTranscription.length()  == /3 y redondear?)
-//     2. Crear un array con esa cantidad de espacios y coloocar las 3 letras en cada posicion (void function) llevar un contador de posicion compartido
-//     3. Traducir cada espacio del array hasta reccibir la señal de stop o que haya traducido tod0 (void function) llevar un contador de posicion compartido
-
+    // STARTS THE TRANSLATION
+    pthread_mutex_init(&sharedPositionMutex, nullptr);
+    for (int i = 0; i < nThreadsC; i++) {
+        pthread_create(&threadsC[i], nullptr, &makeARNtranslation, (void*) &codons.at(i));
+    }
+    for (auto thread: threadsC) {
+        pthread_join(thread, nullptr);
+    }
+    cout << "Su cadena de ADN traducida a proteinas es: " << endl;
+    for (int i = 0; i < codons.size(); i++) {
+        for (auto & codon : codons) {
+            if (codon.pos == i) {
+                cout << codon.protein << endl;
+            }
+        }
+    }
+    pthread_mutex_destroy(&sharedPositionMutex);
     return 0;
 }
 
@@ -162,25 +170,9 @@ void *makeARNtranscription(void *args) {
     }
 }
 
-void* createCodons(void *args){
-    auto *positions = (struct codonPosition*) args;
-    int start = positions->start;
-    int i = positions->id;
-    string temp = arnTranscription.substr(start,3);
-    codonInfo codon;
-    codon.codon=temp;
-    codon.pos=i;
-    codons.push_back(codon);
-
-}
-
-//IMPORTANTE, funcion comentareada ya que en la linea 179 se cambió el tipo de dato del vector "codons" de string a la struct de tipo codonInfo el cual contiene la posición del codon
-/*void* ARNtranslation(void *args){
-    auto *positions = (struct stringPosition*) args;
-    int start = positions->start;
-    int end = positions->end;
-
-    for (int i = start; i < end; i++){
+string makeTranslation(string codon){
+    /*
+     * for (int i = start; i < end; i++){
         string codon = codons[i];
         switch (codon[0]) {
             case 'U':
@@ -221,7 +213,31 @@ void* createCodons(void *args){
                 break;
         }
     }
-}*/
+     */
+    return "Hola" + codon;
+}
+
+void *makeARNtranslation(void *args) {
+    auto *localCodon = (struct codonInfo*) args;
+    pthread_mutex_lock(&sharedPositionMutex);
+    // HACER AQUI LA TRADUCCION
+    localCodon->protein = makeTranslation(localCodon->codon);
+    //
+    pthread_mutex_unlock(&sharedPositionMutex);
+    pthread_exit(nullptr);
+}
+
+
+void *createCodons(void *args) {
+    auto *positions = (struct codonPosition *) args;
+    int start = positions->start;
+    int i = positions->id;
+    string temp = arnTranscription.substr(start, 3);
+    codonInfo codon;
+    codon.codon = temp;
+    codon.pos = i;
+    codons.push_back(codon);
+}
 
 // THIS PART MUST BE SEQUENTIAL BECAUSE IF THE STRING IS SPLIT, THERE'S A CHANCE THAT THE AUG CODON GETS CUT
 /**
@@ -241,21 +257,21 @@ int findStartPosition() {
     //cout << "res"<<res<<endl;
     return -1;
 }
+
 /**
- *
- * @return -1 if AUG isn't found
+ * Finds the end codon of the chain
+ * @return -1 if a STOP codon isn't found
  */
 int findEndPosition() {
     string temp;
-    for (int i = startPosition; i < arnTranscription.length(); i+=3) {
+    for (int i = startPosition; i < arnTranscription.length(); i += 3) {
         temp = arnTranscription[i];
         temp += arnTranscription[i + 1];
         temp += arnTranscription[i + 2];
-        cout<<"temp: "<<temp<<endl;
+        cout << "temp: " << temp << endl;
         if (temp == "UAA" or temp == "UAG" or temp == "UGA") {
-            return i+2;
+            return i + 2;
         }
     }
-    //cout << "res"<<res<<endl;
     return -1;
 }
