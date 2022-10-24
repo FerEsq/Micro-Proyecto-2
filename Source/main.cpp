@@ -149,7 +149,7 @@ void* parallelPrint(void* arg){
     while(sharedPosition != codon->pos){
         pthread_cond_wait(&canPrint, &sharedPositionMutex);
     }
-    cout << codon->protein << endl;
+    cout << codon->protein << " ";
     sharedPosition++;
     pthread_cond_signal(&canPrint);
     pthread_mutex_unlock(&sharedPositionMutex);
