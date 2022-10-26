@@ -4,6 +4,7 @@
 	Programacion de Microprocesadores
 	Ciclo 2 - 2022
 
+    PROYECTO 2
 	main.cpp
 
 	Fernanda Esquivel - 21542
@@ -53,7 +54,7 @@ vector<codonInfo> codons;
 pthread_mutex_t sharedPositionMutex;
 pthread_cond_t canPrint;
 
-// FUNCIONES
+// FUNCTIONS
 void separator();
 void *makeARNtranscription(void *args);
 void *makeARNtranslation(void *args);
@@ -151,6 +152,11 @@ int main() {
     return 0;
 }
 
+/**
+ * Prints codons and proteins in order.
+ * @parameter void* arg
+ * @return none
+ */
 void* parallelPrint(void* arg){
     auto codon = (struct codonInfo *) arg;
     pthread_mutex_lock(&sharedPositionMutex);
@@ -164,10 +170,20 @@ void* parallelPrint(void* arg){
     pthread_exit(nullptr);
 }
 
+/**
+ * Aesthetic text
+ * @arameter none
+ * @return none
+ */
 void separator() {
     cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << endl;
 }
 
+/**
+ * Allows the entry of the DNA string by the user.
+ * @parameter none
+ * @return temp - DNA string
+ */
 string askDNASequence() {
     separator();
     string temp;
@@ -177,6 +193,11 @@ string askDNASequence() {
     return temp;
 }
 
+/**
+ * Transcription of each nitrogenous base of DNA to its respective nitrogenous base of mRNA.
+ * @parameter void *args
+ * @return nullptr
+ */
 void *makeARNtranscription(void *args) {
     auto *positions = (struct stringPosition *) args;
     int start = positions->start;
@@ -200,6 +221,11 @@ void *makeARNtranscription(void *args) {
     return nullptr;
 }
 
+/**
+ * Translation of codons to proteins.
+ * @parameter string codon - codon
+ * @return ""
+ */
 string makeTranslation(string codon) {
     switch (codon[0]) {
         case 'U':
@@ -297,6 +323,10 @@ string makeTranslation(string codon) {
     return "";
 }
 
+/**
+ * Transcription of each nitrogenous base of DNA to its respective nitrogenous base of mRNA.
+ * @parameter void *args
+ */
 void *makeARNtranslation(void *args) {
     auto *localCodon = (struct codonInfo *) args;
     pthread_mutex_lock(&sharedPositionMutex);
@@ -307,7 +337,10 @@ void *makeARNtranslation(void *args) {
     pthread_exit(nullptr);
 }
 
-
+/**
+* Finds the start codon of the chain
+* @parameter void *args
+*/
 void *createCodons(void *args) {
     auto *positions = (struct codonPosition *) args;
     int start = positions->start;
@@ -321,7 +354,7 @@ void *createCodons(void *args) {
 
 // THIS PART MUST BE SEQUENTIAL BECAUSE IF THE STRING IS SPLIT, THERE'S A CHANCE THAT THE AUG CODON GETS CUT
 /**
- *
+ * Finds the start codon of the chain
  * @return -1 if AUG isn't found
  */
 int findStartPosition() {
@@ -334,7 +367,6 @@ int findStartPosition() {
             return i;
         }
     }
-    //cout << "res"<<res<<endl;
     return -1;
 }
 
