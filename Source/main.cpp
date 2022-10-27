@@ -16,6 +16,14 @@
 	--------------------------------------------------------------------
 */
 
+/*
+    ------------------------------------------------------------------------
+    CADENAS DE PRUEBA
+    * TACTAGAGCATT (Met Iso Ser)
+    * ACGTTTACTTGCCCGCTATGGCACATGGAATTCGTAATTTCG (Met Asn Gly Arg Tyr Arg Val Pro)
+    ------------------------------------------------------------------------
+ */
+
 // LIBRARIES
 #include <iostream>
 #include <cmath>
