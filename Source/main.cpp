@@ -140,11 +140,12 @@ int main() {
     // STARTS THE TRANSLATION IN PARALLEL
     pthread_mutex_init(&sharedPositionMutex, nullptr);
     for (int i = 0; i < nThreadsC; i++) {
-        pthread_create(&threadsC[i], nullptr, &makeARNtranslation, (void *) &codons.at(i));
+        pthread_create(&threadsC[i], nullptr, &makeARNtranslation, nullptr);
     }
     for (auto thread: threadsC) {
         pthread_join(thread, nullptr);
     }
+    sharedPosition = 0;
     // PARALLEL PRINTING
     pthread_cond_init(&canPrint, nullptr);
     cout << "Las proteinas producidas por el ADN son: " << endl;
@@ -336,11 +337,9 @@ string makeTranslation(string codon) {
  * @parameter void *args
  */
 void *makeARNtranslation(void *args) {
-    auto *localCodon = (struct codonInfo *) args;
     pthread_mutex_lock(&sharedPositionMutex);
-    // HACER AQUI LA TRADUCCION
+    codonInfo* localCodon = &codons.at(sharedPosition++);
     localCodon->protein = makeTranslation(localCodon->codon);
-    //
     pthread_mutex_unlock(&sharedPositionMutex);
     pthread_exit(nullptr);
 }
