@@ -3,18 +3,18 @@
 	UNIVERSIDAD DEL VALLE DE GUATEMALA
 	Programacion de Microprocesadores
 	Ciclo 2 - 2022
-
     PROYECTO 2
 	main.cpp
-
 	Fernanda Esquivel - 21542
 	Francisco Castillo - 21562
 	Andres Montoya - 21552
     Diego Lemus - 21469
 
-    Prueba: TACTAGAGCATT
-	--------------------------------------------------------------------
-*/
+
+    CADENAS DE PRUEBA
+    * TACTAGAGCATT (Met Iso Ser)
+    ------------------------------------------------------------------------
+ */
 
 // LIBRARIES
 #include <iostream>
@@ -22,7 +22,6 @@
 #include <vector>
 
 using namespace std;
-
 // STRUCTURES
 /*
  * Input String's position
@@ -46,7 +45,6 @@ struct codonInfo {
     string codon;
     string protein;
 };
-
 // VARIABLES
 int nThreads, startPosition = -1, endPosition = -1, sharedPosition = 0;
 string adnInput, arnTranscription;
@@ -56,13 +54,20 @@ pthread_cond_t canPrint;
 
 // FUNCTIONS
 void separator();
+
 void *makeARNtranscription(void *args);
+
 void *makeARNtranslation(void *args);
+
 void *createCodons(void *args);
+
 string askDNASequence();
+
 int findStartPosition();
+
 int findEndPosition();
-void* parallelPrint(void* arg);
+
+void *parallelPrint(void *arg);
 
 // MAIN
 int main() {
@@ -74,7 +79,6 @@ int main() {
     codonPosition positions_codons[nThreads];
     // INITIALIZES THE arnTranscription VARIABLE
     for (char c: adnInput) { arnTranscription += "x"; };
-
     // PICKS POSITIONS FOR THE THREADS
     for (int i = 0; i < nThreads; i++) {
         positions[i].start = i * nThreads;
@@ -85,23 +89,19 @@ int main() {
         }
     }
     cout << "ADN input: " << adnInput << endl;
-
     for (int i = 0; i < nThreads; i++) {
         pthread_create(&threads[i], nullptr, &makeARNtranscription, (void *) &positions[i]);
     }
     for (auto thread: threads) {
         pthread_join(thread, nullptr);
     }
-
     // ARN PRINTING
     separator();
     cout << "ARN transcription: " << arnTranscription << endl;
     separator();
-
     // FINDS THE STARTING CODON (AUG) POSITION AND THE STOP CODON FOR THEM TO BE SPLITTED
     startPosition = findStartPosition();
     endPosition = findEndPosition();
-
     // CREATES nThreads FOR THE CODONS
     int nThreadsC = ceil((endPosition - startPosition) / 3);
     pthread_t threadsC[nThreadsC];
@@ -117,7 +117,6 @@ int main() {
     for (auto thread: threadsC) {
         pthread_join(thread, nullptr);
     }
-
     // PRINTS THE SPLIT CODONS IN ORDER
     cout << "ARN ha sido separado en los codones: ";
     for (int i = 0; i < codons.size(); i++) {
@@ -132,16 +131,17 @@ int main() {
     // STARTS THE TRANSLATION IN PARALLEL
     pthread_mutex_init(&sharedPositionMutex, nullptr);
     for (int i = 0; i < nThreadsC; i++) {
-        pthread_create(&threadsC[i], nullptr, &makeARNtranslation, (void *) &codons.at(i));
+        pthread_create(&threadsC[i], nullptr, &makeARNtranslation, nullptr);
     }
     for (auto thread: threadsC) {
         pthread_join(thread, nullptr);
     }
     // PARALLEL PRINTING
+    sharedPosition = 0;
     pthread_cond_init(&canPrint, nullptr);
     cout << "Las proteinas producidas por el ADN son: " << endl;
     for (int i = 0; i < nThreadsC; i++) {
-        pthread_create(&threadsC[i], nullptr, &parallelPrint, (void*) &codons.at(i));
+        pthread_create(&threadsC[i], nullptr, &parallelPrint, (void *) &codons.at(i));
     }
     for (auto thread: threadsC) {
         pthread_join(thread, nullptr);
@@ -157,16 +157,16 @@ int main() {
  * @parameter void* arg
  * @return none
  */
-void* parallelPrint(void* arg){
+void *parallelPrint(void *arg) {
     auto codon = (struct codonInfo *) arg;
     pthread_mutex_lock(&sharedPositionMutex);
-    while(sharedPosition != codon->pos){
+    while (sharedPosition != codon->pos) {
         pthread_cond_wait(&canPrint, &sharedPositionMutex);
     }
-    cout << codon->protein << " ";
     sharedPosition++;
-    pthread_cond_signal(&canPrint);
+    cout << codon->protein << " ";
     pthread_mutex_unlock(&sharedPositionMutex);
+    pthread_cond_signal(&canPrint);
     pthread_exit(nullptr);
 }
 
@@ -318,7 +318,6 @@ string makeTranslation(string codon) {
                     return "Gly";
             }
             break;
-
     }
     return "";
 }
@@ -328,9 +327,9 @@ string makeTranslation(string codon) {
  * @parameter void *args
  */
 void *makeARNtranslation(void *args) {
-    auto *localCodon = (struct codonInfo *) args;
     pthread_mutex_lock(&sharedPositionMutex);
     // HACER AQUI LA TRADUCCION
+    codonInfo* localCodon = &codons.at(sharedPosition++);
     localCodon->protein = makeTranslation(localCodon->codon);
     //
     pthread_mutex_unlock(&sharedPositionMutex);
